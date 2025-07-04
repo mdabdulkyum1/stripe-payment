@@ -39,7 +39,7 @@ const CheckoutForm = ({ amount, plan }) => {
       }
 
       try {
-        const res = await axiosPublic.post('/api/create-payment-intent', { amount: price });
+        const res = await axiosPublic.post('/api/stripe', { amount: price });
         if (isMounted) {
           if (res?.data?.clientSecret) {
             setClientSecret(res.data.clientSecret);
