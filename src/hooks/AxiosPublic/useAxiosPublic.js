@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 export default function useAxiosPublic() {
-  // You can customize the baseURL if needed
+
   const instance = axios.create({
-    baseURL: '/', // or your API base URL
+    baseURL: 'http://localhost:5000/api/v1', 
   });
   return instance;
 } 
