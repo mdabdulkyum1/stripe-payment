@@ -1,0 +1,60 @@
+{
+  "info": {
+    "name": "WebSocket Testing Collection",
+    "_postman_id": "4f3a0e5d-2f41-4d46-9c3a-2c9d9b2e6a01",
+    "description": "A minimal WebSocket collection using Postman Echo.\n\nUsage:\n- Set the environment to 'WebSocket Env'.\n- Open this request and click Connect.\n- Send messages (text or JSON).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "WebSocket Echo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Sec-WebSocket-Protocol",
+            "value": "{{WS_SUBPROTOCOL}}",
+            "disabled": true
+          }
+        ],
+        "url": {
+          "raw": "{{WS_SCHEME}}://{{WS_HOST}}/{{WS_PATH}}?token={{ACCESS_TOKEN}}",
+          "protocol": "{{WS_SCHEME}}",
+          "host": [
+            "{{WS_HOST}}"
+          ],
+          "path": [
+            "{{WS_PATH}}"
+          ],
+          "query": [
+            {
+              "key": "token",
+              "value": "{{ACCESS_TOKEN}}",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "This item is intended for Postman's WebSocket UI. Postman will open a WebSocket when the URL uses ws/wss.\n\nExamples to send after connecting:\n- hello\n- {\"type\":\"ping\",\"time\":\"{{timestamp}}\",\"from\":\"postman\"}\n\nIf your server requires a subprotocol, enable and set the Sec-WebSocket-Protocol header."
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set(\"timestamp\", new Date().toISOString());",
+              "",
+              "// Generate a session ID for convenience",
+              "const sid = \"sess-\" + Math.random().toString(36).slice(2);",
+              "pm.environment.set(\"SESSION_ID\", sid);"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      }
+    }
+  ]
+}
+
