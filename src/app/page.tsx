@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import PaymentForm from './payment/components/PaymentForm';
 
 export default function Home() {
@@ -14,7 +15,9 @@ export default function Home() {
         {/* Payment Form */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Make a Payment</h2>
-          <PaymentForm />
+          <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>}>
+            <PaymentForm />
+          </Suspense>
         </div>
 
         {/* Features */}
