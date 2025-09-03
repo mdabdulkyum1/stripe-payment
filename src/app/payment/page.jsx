@@ -1,7 +1,7 @@
-import Loading from "@/components/loading/Loading";
 
 import { Suspense } from 'react';
 import PaymentForm from "./components/PaymentForm";
+import Loading from '../components/loading/Loading';
 
 const page = () => {
     return (
