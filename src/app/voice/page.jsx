@@ -329,7 +329,7 @@ export default function VoicePage() {
             </button>
             <div className="mt-2 bg-gray-100 p-2 rounded max-h-40 overflow-y-auto border border-gray-200">
                 <p className="text-blue-800 whitespace-pre-wrap break-all sm:break-words text-base sm:text-lg leading-relaxed">
-                   {transcribedText}
+                  To:- {transcribedText}
                 </p>
             </div>
           </div>
