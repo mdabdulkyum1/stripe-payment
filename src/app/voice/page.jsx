@@ -279,7 +279,7 @@ export default function VoicePage() {
 
         {/* Floating Text Display */}
         {transcribedText && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 w-full relative z-10">
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-semibold text-blue-900">Transcribed Text:</h3>
               <div className="flex space-x-2">
@@ -297,7 +297,7 @@ export default function VoicePage() {
                 </button>
               </div>
             </div>
-            <p className="text-blue-800 whitespace-pre-wrap">{transcribedText}</p>
+            <p className="text-blue-800 whitespace-pre-wrap break-words">{transcribedText}</p>
           </div>
         )}
 

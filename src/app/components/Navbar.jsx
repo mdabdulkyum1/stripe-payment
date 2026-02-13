@@ -27,6 +27,9 @@ export default function Navbar() {
             <Link href="/voice" className={`${isActive('/voice')} transition-colors duration-200`}>
               Voice
             </Link>
+            <Link href="/sojib" className={`${isActive('/voice')} transition-colors duration-200`}>
+              Sojib
+            </Link>
           </div>
         </div>
       </div>
