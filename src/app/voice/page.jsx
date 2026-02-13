@@ -8,11 +8,12 @@ export default function VoicePage() {
   const [transcribedText, setTranscribedText] = useState('');
   const [audioBlob, setAudioBlob] = useState(null);
   const [isListening, setIsListening] = useState(false);
-  const [lastTranscript, setLastTranscript] = useState('');
+  const [interimText, setInterimText] = useState('');
   const [error, setError] = useState('');
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
   
   const mediaRecorderRef = useRef(null);
+  const recognitionRef = useRef(null);
   const audioChunksRef = useRef([]);
   const debounceTimerRef = useRef(null);
 
@@ -32,30 +33,25 @@ export default function VoicePage() {
       recognitionRef.current.lang = 'en-US';
 
       recognitionRef.current.onresult = (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
+        let currentInterim = '';
+        let currentFinal = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
+            currentFinal += transcript + ' ';
           } else {
-            interimTranscript += transcript;
+            currentInterim += transcript;
           }
         }
 
-        if (finalTranscript || interimTranscript) {
-          setTranscribedText(prev => {
-            // If it's the first result, just set it
-            if (!prev) return (finalTranscript + interimTranscript).trim();
-            
-            // For simple reliability on mobile, we'll append final results
-            // and show interim results at the end
-            const baseText = prev.endsWith(' ') ? prev : prev + ' ';
-            return (finalTranscript ? baseText + finalTranscript : prev + ' ' + interimTranscript).trim();
-          });
-          setError(''); // Clear errors if we get results
+        if (currentFinal) {
+          setTranscribedText(prev => (prev.endsWith(' ') ? prev : prev + ' ') + currentFinal);
+          setInterimText(''); // Clear interim when we get final
+        } else if (currentInterim) {
+          setInterimText(currentInterim);
         }
+        setError('');
       };
 
       recognitionRef.current.onerror = (event) => {
@@ -184,8 +180,8 @@ export default function VoicePage() {
 
   const clearText = () => {
     setTranscribedText('');
+    setInterimText('');
     setAudioBlob(null);
-    setLastTranscript('');
   };
 
   const sendAudioToBackend = async (audioBlob) => {
@@ -291,6 +287,7 @@ export default function VoicePage() {
             </div>
             <p className="text-blue-800 whitespace-pre-wrap break-all sm:break-words text-base sm:text-lg leading-relaxed">
               {transcribedText}
+              <span className="text-blue-400 italic">{interimText}</span>
             </p>
           </div>
         )}
@@ -322,6 +319,7 @@ export default function VoicePage() {
             <div className="mt-2 bg-gray-100 p-2 rounded max-h-40 overflow-y-auto border border-gray-200">
                 <p className="text-blue-800 whitespace-pre-wrap break-all sm:break-words text-base sm:text-lg leading-relaxed">
                   To:- {transcribedText}
+                  <span className="text-blue-400 italic">{interimText}</span>
                 </p>
             </div>
           </div>
