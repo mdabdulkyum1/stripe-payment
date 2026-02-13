@@ -11,6 +11,7 @@ export default function VoicePage() {
   const [interimText, setInterimText] = useState('');
   const [error, setError] = useState('');
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   const mediaRecorderRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -18,6 +19,10 @@ export default function VoicePage() {
   const debounceTimerRef = useRef(null);
 
   useEffect(() => {
+    // Check if mobile
+    const mobileCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(mobileCheck);
+
     // Check if speech synthesis is supported
     if ('speechSynthesis' in window) {
       setIsSupported(true);
@@ -56,7 +61,11 @@ export default function VoicePage() {
 
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        setError(`Speech Error: ${event.error}`);
+        if (event.error === 'aborted' && isMobile) {
+          setError('Recording aborted. Mobile browsers often block simultaneous text & audio recording. Trying to fix...');
+        } else {
+          setError(`Speech Error: ${event.error}`);
+        }
         setIsListening(false);
       };
 
@@ -98,34 +107,31 @@ export default function VoicePage() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setError('');
       
-      // Start audio recording
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      audioChunksRef.current = [];
+      // ON MOBILE: We skip MediaRecorder if prioritized for text to avoid "aborted" error
+      // Many mobile browsers can't handle both streams at once.
+      if (!isMobile) {
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        audioChunksRef.current = [];
 
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
+        };
 
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        setAudioBlob(audioBlob);
-        
-        // Console log the audio file
-        console.log('Audio recording completed:', audioBlob);
-        console.log('Audio file size:', audioBlob.size, 'bytes');
-        console.log('Audio file type:', audioBlob.type);
-        
-        // Create audio URL for preview
-        const audioUrl = URL.createObjectURL(audioBlob);
-        console.log('Audio URL:', audioUrl);
-        
-        // Here you can send the audioBlob to your backend
-        // sendAudioToBackend(audioBlob);
-      };
+        mediaRecorderRef.current.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          setAudioBlob(audioBlob);
+          console.log('Audio recording completed:', audioBlob);
+        };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
+        mediaRecorderRef.current.start();
+        setIsRecording(true);
+      } else {
+        // on mobile we just set isRecording to true to show UI, but skip file creation
+        setIsRecording(true);
+        console.log('Mobile detected: Prioritizing transcription over file recording to prevent abort error');
+      }
 
       // Start speech recognition
       if (recognitionRef.current) {
@@ -147,11 +153,13 @@ export default function VoicePage() {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      
-      // Stop all tracks
+    }
+    setIsRecording(false);
+    
+    // Stop all tracks to release microphone
+    if (mediaRecorderRef.current?.stream) {
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
 
