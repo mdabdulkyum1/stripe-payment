@@ -9,9 +9,10 @@ export default function VoicePage() {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState('');
+  const [error, setError] = useState('');
+  const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
   
   const mediaRecorderRef = useRef(null);
-  const recognitionRef = useRef(null);
   const audioChunksRef = useRef([]);
   const debounceTimerRef = useRef(null);
 
@@ -22,76 +23,53 @@ export default function VoicePage() {
     }
 
     // Check if speech recognition is supported
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setIsRecognitionSupported(true);
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
 
       recognitionRef.current.onresult = (event) => {
-        let finalTranscript = '';
         let interimTranscript = '';
+        let finalTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript;
+            finalTranscript += transcript + ' ';
           } else {
             interimTranscript += transcript;
           }
         }
 
-        // Prevent duplicate words with debouncing
-        const newText = finalTranscript + interimTranscript;
-        
-        // Clear any existing timer
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
-        }
-        
-        // Set a new timer to update the transcript
-        debounceTimerRef.current = setTimeout(() => {
+        if (finalTranscript || interimTranscript) {
           setTranscribedText(prev => {
-            // Normalize and split into words
-            const prevWords = prev.trim().split(/\s+/);
-            const newWords = newText.trim().split(/\s+/);
-
-            // If this is the first text, just add it
-            if (!prev) {
-              setLastTranscript(newText);
-              return newText.trim();
-            }
-
-            // Find the largest overlap between the end of prevWords and the start of newWords
-            let overlap = 0;
-            const maxOverlap = Math.min(prevWords.length, newWords.length);
-            for (let i = maxOverlap; i > 0; i--) {
-              if (prevWords.slice(-i).join(' ') === newWords.slice(0, i).join(' ')) {
-                overlap = i;
-                break;
-              }
-            }
-
-            // Only append the non-overlapping part
-            const toAdd = newWords.slice(overlap).join(' ');
-            if (!toAdd) {
-              return prev;
-            }
-            setLastTranscript(newText);
-            return (prev + ' ' + toAdd).trim();
+            // If it's the first result, just set it
+            if (!prev) return (finalTranscript + interimTranscript).trim();
+            
+            // For simple reliability on mobile, we'll append final results
+            // and show interim results at the end
+            const baseText = prev.endsWith(' ') ? prev : prev + ' ';
+            return (finalTranscript ? baseText + finalTranscript : prev + ' ' + interimTranscript).trim();
           });
-        }, 300); // 300ms debounce delay
+          setError(''); // Clear errors if we get results
+        }
       };
 
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
+        setError(`Speech Error: ${event.error}`);
         setIsListening(false);
       };
 
       recognitionRef.current.onend = () => {
         setIsListening(false);
       };
+    } else {
+      setIsRecognitionSupported(false);
+      setError('Speech Recognition is NOT supported in this browser.');
     }
   }, []);
 
@@ -155,10 +133,16 @@ export default function VoicePage() {
 
       // Start speech recognition
       if (recognitionRef.current) {
-        recognitionRef.current.start();
-        setIsListening(true);
-        setTranscribedText('');
-        setLastTranscript('');
+        setError('');
+        try {
+          recognitionRef.current.start();
+          setIsListening(true);
+          setTranscribedText('');
+          setLastTranscript('');
+        } catch (e) {
+          console.error('Failed to start recognition:', e);
+          setError('Failed to start speech recognition. It might already be running or blocked.');
+        }
       }
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -273,7 +257,15 @@ export default function VoicePage() {
             {isRecording ? 'Recording... Click to stop' : 'Click the microphone to start recording'}
           </p>
           {isListening && (
-            <p className="text-green-600 font-semibold mt-2">Listening for speech...</p>
+            <p className="text-green-600 font-semibold mt-2 animate-pulse">Listening for speech...</p>
+          )}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+              {!isRecognitionSupported && (
+                <p className="mt-1 font-bold">Try using Chrome on Android or Safari on iPhone.</p>
+              )}
+            </div>
           )}
         </div>
 
