@@ -237,15 +237,15 @@ export default function VoicePage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Voice Experience</h1>
-        <p className="text-xl text-gray-600">Experience our payment platform with voice interaction</p>
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">Voice Experience</h1>
+        <p className="text-lg sm:text-xl text-gray-600">Experience our payment platform with voice interaction</p>
       </div>
 
       {/* Speech-to-Text Section */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Speech-to-Text Recording</h2>
+      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center sm:text-left">Speech-to-Text Recording</h2>
         
         <div className="flex items-center justify-center mb-6">
           <button
@@ -279,25 +279,27 @@ export default function VoicePage() {
 
         {/* Floating Text Display */}
         {transcribedText && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 w-full relative z-10">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-blue-900">Transcribed Text:</h3>
-              <div className="flex space-x-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 w-full relative z-50 shadow-sm min-h-[100px]">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+              <h3 className="font-semibold text-blue-900 mb-2 sm:mb-0">Transcribed Text:</h3>
+              <div className="flex space-x-2 w-full sm:w-auto">
                 <button
                   onClick={copyText}
-                  className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors duration-200"
+                  className="flex-1 sm:flex-none bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700 transition-colors duration-200"
                 >
                   Copy
                 </button>
                 <button
                   onClick={clearText}
-                  className="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition-colors duration-200"
+                  className="flex-1 sm:flex-none bg-gray-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-gray-700 transition-colors duration-200"
                 >
                   Clear
                 </button>
               </div>
             </div>
-            <p className="text-blue-800 whitespace-pre-wrap break-words">{transcribedText}</p>
+            <p className="text-blue-800 whitespace-pre-wrap break-all sm:break-words text-base sm:text-lg leading-relaxed">
+              {transcribedText}
+            </p>
           </div>
         )}
 
