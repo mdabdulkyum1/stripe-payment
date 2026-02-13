@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import PaymentForm from './payment/components/PaymentForm';
 
 export default function Home() {
@@ -14,7 +15,9 @@ export default function Home() {
         {/* Payment Form */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Make a Payment</h2>
-          <PaymentForm />
+          <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>}>
+            <PaymentForm />
+          </Suspense>
         </div>
 
         {/* Features */}
@@ -30,7 +33,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">Secure Payments</h3>
-                <p className="text-gray-600">Bank-level security with Stripe's advanced encryption</p>
+                <p className="text-gray-600">Bank-level security with Stripe{"'"}s advanced encryption</p>
               </div>
             </div>
 
@@ -74,7 +77,7 @@ export default function Home() {
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-semibold text-gray-900 mb-2">Getting Started</h3>
             <p className="text-gray-600 text-sm">
-              To test the payment system, you can use Stripe's test card numbers:
+              To test the payment system, you can use Stripe{"'"}s test card numbers:
             </p>
             <ul className="text-sm text-gray-600 mt-2 space-y-1">
               <li>• 4242 4242 4242 4242 (Visa)</li>

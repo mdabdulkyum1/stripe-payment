@@ -1,8 +1,8 @@
 'use client';
 
 import { Suspense } from 'react';
-import Loading from '@/components/loading/Loading';
 import StripeWrapper from './components/StripeWrapper';
+import Loading from '../../components/loading/Loading';
 
 export default function StripePage() {
   return (
