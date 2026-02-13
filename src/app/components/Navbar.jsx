@@ -27,8 +27,8 @@ export default function Navbar() {
             <Link href="/voice" className={`${isActive('/voice')} transition-colors duration-200`}>
               Voice
             </Link>
-            <Link href="/sojib" className={`${isActive('/voice')} transition-colors duration-200`}>
-              Sojib
+            <Link href="/mobileVoice" className={`${isActive('/mobileVoice')} transition-colors duration-200`}>
+              Mobile Voice
             </Link>
           </div>
         </div>
